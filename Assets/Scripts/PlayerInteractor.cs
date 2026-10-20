@@ -43,9 +43,6 @@ public class PlayerInteractor : MonoBehaviour
         IInteractable containingSmallest = null;
         float smallestArea = float.MaxValue;
 
-        IInteractable nearestOutside = null;
-        float nearestDist = float.MaxValue;
-
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, interactRadius, interactableLayer);
         foreach (var hit in hits)
         {
@@ -61,20 +58,9 @@ public class PlayerInteractor : MonoBehaviour
                     containingSmallest = interactable;
                 }
             }
-            else
-            {
-                // Игрок рядом, но не внутри — считаем расстояние до границы коллайдера.
-                Vector2 closest = hit.ClosestPoint(transform.position);
-                float d = Vector2.Distance(transform.position, closest);
-                if (d < nearestDist)
-                {
-                    nearestDist = d;
-                    nearestOutside = interactable;
-                }
-            }
         }
 
-        current = containingSmallest != null ? containingSmallest : nearestOutside;
+        current = containingSmallest;
     }
 
     private void OnDrawGizmosSelected()

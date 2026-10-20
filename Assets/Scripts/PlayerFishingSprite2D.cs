@@ -1,12 +1,13 @@
 using UnityEngine;
 
 /// <summary>
-/// Переключает Animator.IsFishing вместо прямой подмены SpriteRenderer.sprite —
-/// теперь это делает Animator Controller (IdlePlayer / WalkPlayer / IdleFishingPlayer).
-/// Телепорт к точке рыбалки оставлен как было.
+/// Переключает Animator.IsFishing (анимации ведёт Animator Controller)
+/// и переносит игрока к точке рыбалки.
 /// </summary>
 public class PlayerFishingSprite2D : MonoBehaviour
 {
+    private static readonly int IsFishingHash = Animator.StringToHash("IsFishing");
+
     [Header("Ссылки")]
     public Animator animator;
     public FishingManager fishingManager;
@@ -14,12 +15,11 @@ public class PlayerFishingSprite2D : MonoBehaviour
     [Header("Точка рыбалки (у берега)")]
     public Transform fishingStandPoint;
 
-    private Transform playerTransform;
     private Rigidbody2D playerRb;
+    private bool wasFishing;
 
     private void Awake()
     {
-        playerTransform = transform;
         playerRb = GetComponent<Rigidbody2D>();
     }
 
@@ -44,13 +44,25 @@ public class PlayerFishingSprite2D : MonoBehaviour
     private void HandleStateChanged(FishingState state)
     {
         bool isFishing = state != FishingState.Idle;
-        animator?.SetBool("IsFishing", isFishing);
 
-        if (isFishing && fishingStandPoint != null)
+        if (animator != null)
+            animator.SetBool(IsFishingHash, isFishing);
+
+        // Телепорт только в момент начала рыбалки, а не при каждой смене состояния.
+        if (isFishing && !wasFishing && fishingStandPoint != null)
+            TeleportTo(fishingStandPoint.position);
+
+        wasFishing = isFishing;
+    }
+
+    private void TeleportTo(Vector2 position)
+    {
+        if (playerRb != null)
         {
-            playerTransform.position = fishingStandPoint.position;
-            if (playerRb != null)
-                playerRb.linearVelocity = Vector2.zero;
+            // Пишем в Rigidbody, иначе MovePosition в PlayerController вернёт игрока назад.
+            playerRb.position = position;
+            playerRb.linearVelocity = Vector2.zero;
         }
+        transform.position = new Vector3(position.x, position.y, transform.position.z);
     }
 }

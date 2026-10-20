@@ -3,6 +3,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
+    private static readonly int SpeedHash = Animator.StringToHash("Speed");
+
     public float moveSpeed = 2.2f;
     public SpriteRenderer spriteRenderer;
 
@@ -28,7 +30,7 @@ public class PlayerController : MonoBehaviour
         if (locked)
         {
             moveInput = Vector2.zero;
-            animator?.SetFloat("Speed", 0f);
+            if (animator != null) animator.SetFloat(SpeedHash, 0f);
             return;
         }
 
@@ -38,11 +40,14 @@ public class PlayerController : MonoBehaviour
         if (Mathf.Abs(moveInput.x) > 0.01f && spriteRenderer != null)
             spriteRenderer.flipX = moveInput.x < 0f;
 
-        animator?.SetFloat("Speed", moveInput.magnitude);
+        if (animator != null) animator.SetFloat(SpeedHash, moveInput.magnitude);
     }
 
     private void FixedUpdate()
     {
+        // Пока стоим на месте, не трогаем позицию: иначе MovePosition(rb.position)
+        // может перебить телепорт к точке рыбалки.
+        if (moveInput == Vector2.zero) return;
         rb.MovePosition(rb.position + moveInput * moveSpeed * Time.fixedDeltaTime);
     }
 }

@@ -6,8 +6,7 @@ public enum FishingState { Idle, Waiting, Biting }
 
 /// <summary>
 /// Заброс -> ожидание (4-14 сек) -> короткое окно поклёвки -> улов.
-/// Уловы выдаются строго по порядку (nextCatchIndex), без случайности —
-/// так игрок гарантированно видит записки 1, 2, 3... N именно в этом порядке.
+/// Уловы выдаются строго по порядку (nextCatchIndex), без случайности.
 /// </summary>
 public class FishingManager : MonoBehaviour
 {
@@ -21,6 +20,9 @@ public class FishingManager : MonoBehaviour
     public float maxWaitTime = 14f;
     public float biteReactionWindow = 2f;
 
+    [Header("Отладка")]
+    public bool debugLogs = true;
+
     public FishingState State { get; private set; } = FishingState.Idle;
     public event Action<FishingState> OnStateChanged;
 
@@ -31,22 +33,32 @@ public class FishingManager : MonoBehaviour
 
     public void Cast()
     {
+        if (debugLogs) Debug.Log($"[Fishing] Cast() вызван, состояние = {State}");
         if (State != FishingState.Idle) return;
+
         SetState(FishingState.Waiting);
+        if (routine != null) StopCoroutine(routine);
         routine = StartCoroutine(WaitForBite());
     }
 
     /// <summary>Игрок решает не тянуть и прерывает заброс до поклёвки.</summary>
     public void CancelCast()
     {
+        if (debugLogs) Debug.Log("[Fishing] CancelCast() вызван\n" + Environment.StackTrace);
         if (State == FishingState.Idle) return;
+
         if (routine != null) StopCoroutine(routine);
+        routine = null;
         SetState(FishingState.Idle);
     }
 
     public void TryHook()
     {
+        if (debugLogs) Debug.Log($"[Fishing] TryHook() вызван, состояние = {State}");
         if (State != FishingState.Biting) return;
+
+        if (routine != null) StopCoroutine(routine);
+        routine = null;
         SetState(FishingState.Idle);
         ResolveCatch();
     }
@@ -67,6 +79,8 @@ public class FishingManager : MonoBehaviour
 
         if (State == FishingState.Biting)
             SetState(FishingState.Idle); // не подсёк вовремя — молча ушла
+
+        routine = null;
     }
 
     private void ResolveCatch()
@@ -83,16 +97,20 @@ public class FishingManager : MonoBehaviour
         var entry = catchDatabase.GetEntry(NextCatchIndex);
         NextCatchIndex++;
 
-        GameFlowManager.Instance?.RegisterCatch();
         if (GameFlowManager.Instance != null)
-            waterVisuals?.OnCatchRegistered(GameFlowManager.Instance.totalCatches);
+        {
+            GameFlowManager.Instance.RegisterCatch();
+            if (waterVisuals != null)
+                waterVisuals.OnCatchRegistered(GameFlowManager.Instance.totalCatches);
+        }
 
-        if (entry != null)
-            catchQuoteUI?.ShowCatch(entry);
+        if (entry != null && catchQuoteUI != null)
+            catchQuoteUI.ShowCatch(entry);
     }
 
     private void SetState(FishingState newState)
     {
+        if (debugLogs) Debug.Log($"[Fishing] Состояние: {State} -> {newState}");
         State = newState;
         OnStateChanged?.Invoke(newState);
     }

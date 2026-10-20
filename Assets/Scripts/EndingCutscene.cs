@@ -27,7 +27,7 @@ public class EndingCutscene : MonoBehaviour
     {
         newSliceCharacter.gameObject.SetActive(true);
         newSliceCharacter.position = walkStartPoint.position;
-        newSliceAnimator.SetTrigger("Walk");
+        if (newSliceAnimator != null) newSliceAnimator.SetTrigger("Walk");
 
         while (Vector3.Distance(newSliceCharacter.position, sitPoint.position) > 0.05f)
         {
@@ -36,7 +36,7 @@ public class EndingCutscene : MonoBehaviour
             yield return null;
         }
 
-        newSliceAnimator.SetTrigger("Sit");
+        if (newSliceAnimator != null) newSliceAnimator.SetTrigger("Sit");
 
         yield return new WaitForSeconds(holdBeforeCredits);
 

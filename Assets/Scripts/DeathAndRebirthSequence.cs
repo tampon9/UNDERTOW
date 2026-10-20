@@ -29,8 +29,13 @@ public class DeathAndRebirthSequence : MonoBehaviour
     [Header("Тайминги")]
     public float fallAnimationDuration = 1.2f;
 
+    private bool playing;
+
     public void Play()
     {
+        // Защита от двойного запуска: пистолет может вызвать и напрямую, и через событие onGunFired
+        if (playing) return;
+        playing = true;
         StartCoroutine(Sequence());
     }
 

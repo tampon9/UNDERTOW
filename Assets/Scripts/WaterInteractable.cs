@@ -19,7 +19,7 @@ public class WaterInteractable : MonoBehaviour, IInteractable
         switch (fishingManager.State)
         {
             case FishingState.Idle: return "Закинуть удочку";
-            case FishingState.Waiting: return "Смотреть на воду";
+            case FishingState.Waiting: return "Бросить удочку";
             case FishingState.Biting: return "Подсечь!";
             default: return "";
         }
