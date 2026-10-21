@@ -818,7 +818,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CreditsScroller
   content: {fileID: 1607482656}
-  scrollSpeed: 50
+  scrollSpeed: 45
   fastMultiplier: 4
   nextSceneName: MainMenu
 --- !u!1660057539 &9223372036854775807
