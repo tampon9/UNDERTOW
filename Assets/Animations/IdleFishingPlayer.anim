@@ -30,10 +30,10 @@ AnimationClip:
       value: {fileID: 5345185759449943963, guid: 67d4933397efe1d45a47caa17c354cd5, type: 3}
     - time: 1
       value: {fileID: -5571267435910610348, guid: 67d4933397efe1d45a47caa17c354cd5, type: 3}
-    attribute: idleSprite
+    attribute: m_Sprite
     path: 
-    classID: 114
-    script: {fileID: 11500000, guid: 2bb2b465841a1f244a34239384c4b5c6, type: 3}
+    classID: 212
+    script: {fileID: 0}
     flags: 2
   m_SampleRate: 4
   m_WrapMode: 0
@@ -44,10 +44,10 @@ AnimationClip:
     genericBindings:
     - serializedVersion: 2
       path: 0
-      attribute: 307129049
-      script: {fileID: 11500000, guid: 2bb2b465841a1f244a34239384c4b5c6, type: 3}
-      typeID: 114
-      customType: 0
+      attribute: 0
+      script: {fileID: 0}
+      typeID: 212
+      customType: 23
       isPPtrCurve: 1
       isIntCurve: 0
       isSerializeReferenceCurve: 0

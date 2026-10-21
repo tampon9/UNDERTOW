@@ -21,6 +21,9 @@ public class CatchQuoteUI : MonoBehaviour
     public float holdTime = 2.8f;
     public float fadeOutTime = 1.0f;
 
+    /// <summary>Сколько секунд записка на экране целиком (нужно для концовки).</summary>
+    public float TotalDuration => fadeInTime + holdTime + fadeOutTime;
+
     private Coroutine current;
 
     public void ShowCatch(CatchEntry entry)

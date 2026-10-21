@@ -610,7 +610,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   musicSource: {fileID: 500694439}
+  menuMusic: {fileID: 8300000, guid: c13614ecd04768e46970b56497a29b0a, type: 3}
   backgroundMusic: {fileID: 8300000, guid: b641217388e69b94191198c211a7a8f7, type: 3}
+  creditsMusic: {fileID: 8300000, guid: 45b6dd07e7d40864f90c9f4df5400b5d, type: 3}
+  menuSceneName: MainMenu
+  creditsSceneName: Credits
   defaultVolumePercent: 100
 --- !u!82 &500694439
 AudioSource:
@@ -627,7 +631,7 @@ AudioSource:
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0

@@ -7,6 +7,7 @@ public enum FishingState { Idle, Waiting, Biting }
 /// <summary>
 /// Заброс -> ожидание (4-14 сек) -> короткое окно поклёвки -> улов.
 /// Уловы выдаются строго по порядку (nextCatchIndex), без случайности.
+/// На последней записке запускает EndingSequence (затемнение + титры).
 /// </summary>
 public class FishingManager : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class FishingManager : MonoBehaviour
     public CatchDatabase catchDatabase;
     public CatchQuoteUI catchQuoteUI;
     public WaterVisuals waterVisuals;
+    public EndingSequence endingSequence;   // НОВОЕ: объект EndingSequence из сцены
 
     [Header("Тайминги")]
     public float minWaitTime = 4f;
@@ -106,6 +108,13 @@ public class FishingManager : MonoBehaviour
 
         if (entry != null && catchQuoteUI != null)
             catchQuoteUI.ShowCatch(entry);
+
+        // НОВОЕ: последняя записка — запускаем концовку
+        if (NextCatchIndex >= catchDatabase.Count && endingSequence != null)
+        {
+            float d = catchQuoteUI != null ? catchQuoteUI.TotalDuration : 0f;
+            endingSequence.StartEnding(d);
+        }
     }
 
     private void SetState(FishingState newState)

@@ -1,9 +1,9 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Один на всю игру. Хранит и применяет громкость музыки, сохраняет её между
-/// запусками через PlayerPrefs. Громкость приходит в проценты (0-100) — так удобнее
-/// вязать со слайдером в UI, внутри конвертируется в 0..1 для AudioSource.
+/// Один на всю игру. Хранит громкость музыки (PlayerPrefs) и меняет трек при смене сцены:
+/// в меню играет menuMusic, во всех остальных сценах — backgroundMusic.
 /// </summary>
 public class AudioManager : MonoBehaviour
 {
@@ -11,7 +11,13 @@ public class AudioManager : MonoBehaviour
 
     [Header("Музыка")]
     public AudioSource musicSource;
-    public AudioClip backgroundMusic; // сюда — фоновая.mp3
+    public AudioClip menuMusic;        // hz_kuda (музыка меню)
+    public AudioClip backgroundMusic;  // фоновая (музыка игры)
+    public AudioClip creditsMusic;     // музыка титров (если пусто — играет backgroundMusic)
+
+    [Header("Названия сцен")]
+    public string menuSceneName = "MainMenu";
+    public string creditsSceneName = "Credits";
 
     [Range(0, 100)]
     public int defaultVolumePercent = 70;
@@ -32,16 +38,43 @@ public class AudioManager : MonoBehaviour
 
         int saved = PlayerPrefs.GetInt(VolumePrefKey, defaultVolumePercent);
         SetMusicVolume(saved);
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void Start()
     {
-        if (musicSource != null && backgroundMusic != null)
-        {
-            musicSource.clip = backgroundMusic;
-            musicSource.loop = true;
-            musicSource.Play();
-        }
+        PlayForScene(SceneManager.GetActiveScene().name);
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        PlayForScene(scene.name);
+    }
+
+    private void PlayForScene(string sceneName)
+    {
+        if (musicSource == null) return;
+
+        AudioClip clip;
+        if (sceneName == menuSceneName)
+            clip = menuMusic;
+        else if (sceneName == creditsSceneName && creditsMusic != null)
+            clip = creditsMusic;
+        else
+            clip = backgroundMusic;
+        if (clip == null) return;
+        if (musicSource.clip == clip && musicSource.isPlaying) return;
+
+        musicSource.clip = clip;
+        musicSource.loop = true;
+        musicSource.Play();
     }
 
     /// <summary>0..100 — основной метод, используй его из кода.</summary>
@@ -54,7 +87,7 @@ public class AudioManager : MonoBehaviour
         PlayerPrefs.SetInt(VolumePrefKey, CurrentVolumePercent);
     }
 
-    /// <summary>Перегрузка под UnityEvent<float> от UI Slider (значения слайдера — float).</summary>
+    /// <summary>Перегрузка под UnityEvent<float> от UI Slider.</summary>
     public void SetMusicVolume(float percent)
     {
         SetMusicVolume(Mathf.RoundToInt(percent));
